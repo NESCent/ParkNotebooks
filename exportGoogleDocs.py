@@ -21,6 +21,8 @@ import gdata.docs.service
 import gdata.docs.client
 import os.path
 
+DOWNLOAD_DIR = '/Users/dan/parkNotebooks/'
+
 def DownloadFeed(client,feed,dir):
 	if not feed.entry:
 		print 'No entries in feed\n'
@@ -41,16 +43,20 @@ def main():
 		print 'python exportGoogleDocs.py --user [username] --pw [password] '
 		sys.exit(2)
 
-	user = ''
-	pw = ''
-	key = ''
+	user = None
+	pw = None
+	key = '' # key is not used
 	# Process options
 	for option, arg in opts:
 		if option == '--user':
 	  		user = arg
 		elif option == '--pw':
 	  		pw = arg
-	
+
+	if user is None or pw is None:
+		print 'python exportGoogleDocs.py --user [username] --pw [password] '
+		sys.exit(2)
+	# Source is the application name
 	client = gdata.docs.client.DocsClient(source='nescent-parkNotebooks-v1')
 	client.ssl = True
 	client.http_client.debug = False
@@ -62,12 +68,11 @@ def main():
 	
 	titleSearchStr='ftbms0100201'
 	feed = client.GetResources(uri='/feeds/default/private/full/-/spreadsheet?title='+titleSearchStr)
-	downloadDir = '/Users/karen/Code/parkNotebooks/'
 
 	if not feed.entry:
 		print 'No spreadsheet titled '+templateTitle+'\n'
 	else:
-		DownloadFeed(client,feed,downloadDir)
+		DownloadFeed(client,feed,DOWNLOAD_DIR)
   
 if __name__ == '__main__':
 	main()

@@ -42,8 +42,8 @@ def main():
 		print 'python copyGoogleDocs.py --user [username] --pw [password] '
 		sys.exit(2)
 
-	user = ''
-	pw = ''
+	user = None
+	pw = None
 	key = ''
 	# Process options
 	for option, arg in opts:
@@ -51,7 +51,12 @@ def main():
 	  		user = arg
 		elif option == '--pw':
 	  		pw = arg
-	
+
+	if user is None or pw is None:
+		print 'python copyGoogleDocs.py --user [username] --pw [password] '
+		sys.exit(2)
+
+	# Source is just a name identifying this application
 	client = gdata.docs.client.DocsClient(source='nescent-parkNotebooks-v1')
 	client.ssl = True
 	client.http_client.debug = False
