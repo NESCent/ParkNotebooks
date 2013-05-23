@@ -28,7 +28,7 @@ def DownloadFeed(client,feed,dir):
 		print 'No entries in feed\n'
 	for entry in feed.entry:
 		title=entry.title.text.encode('UTF-8')
-		destinationFile=dir+title+'.csv'
+		destinationFile=os.path.join(dir, title+'.csv')
 		if not os.path.exists(destinationFile):
 			print 'Downloading spreadsheet to %s' % destinationFile
 			client.DownloadResource(entry, destinationFile, extra_params={'gid': 0, 'exportFormat': 'csv'})  # export the first sheet as csv	
@@ -70,7 +70,7 @@ def main():
 	feed = client.GetResources(uri='/feeds/default/private/full/-/spreadsheet?title='+titleSearchStr)
 
 	if not feed.entry:
-		print 'No spreadsheet titled '+templateTitle+'\n'
+		print 'No spreadsheet titled '+titleSearchStr+'\n'
 	else:
 		DownloadFeed(client,feed,DOWNLOAD_DIR)
   
