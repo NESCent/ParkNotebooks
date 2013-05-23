@@ -29,27 +29,36 @@ HEADERS = ['Date', 'Age', 'Obsr.', 'small', 'med.', 'large', 'sum', 'PUPAE', 'IM
 
 def checkDirectory(directoryName):
 	filenames = os.listdir(directoryName)
+	directoryErrors = []
 	for filename in filenames:
-		checkFile(os.path.join(directoryName, filename))
+		errors = checkFile(os.path.join(directoryName, filename))
+		directoryErrors.append({'filename': filename, 'errors': errors})
+	return directoryErrors
 
 def checkFile(filename):
-	print "Checking file %s..." % filename
+	errors = []
 	with open(filename, 'rb') as csvfile:
 		# can specify fieldnames here, but would rather confirm them directly
 		csvdata = csv.DictReader(csvfile)
 		for dictRow in csvdata:
-			if checkRow(dictRow) == False:
-				print "line %d failed check: %s" % (csvdata.line_num, str(dictRow))
+			result = checkRow(dictRow)
+			if result is not None:
+				errors.append({'line': csvdata.line_num, 'row': dictRow, 'error': result})
+	if len(errors) == 0:
+		print "%s: OK" % os.path.basename(filename)
+   	else:
+		print "%s: FAILED" % os.path.basename(filename)
+		for failure in errors:
+			print "  Line %d of %s failed check with error: %s" % (failure['line'], os.path.basename(filename), failure['error'])
+	return errors
 
 def checkRow(dictRow):
 	# first simply check the number of rows
 	if len(dictRow) != len(HEADERS):
-		print "wrong number of headers in CSV row"
-		return False
+		return "wrong number of headers in CSV row"
 	# second, check to make sure the headers are the same
 	if sorted(HEADERS) != sorted(dictRow.keys()):
-		print "Headers in CSV row don't match the template"
-		return False
+		return "Headers in CSV row don't match the template"
 	# third, check the data
 	# CSV library returns strings.  Convert to ints where we expect numbers
 	smlDict = {k: dictRow[k] for k in ['small','med.','large','sum']}
@@ -73,18 +82,18 @@ def checkRow(dictRow):
 
 	# small and medium may be combined into one column in some rows, but both can't be missing
 	if 'small' in missingValuesDict and 'med.' in missingValuesDict:
-		print "small and med. both missing"
-		return False
+		return "small and med. both missing"
 	# small + medium + large must equal sum
 	calculatedSum = smlDict['small'] + smlDict['med.'] + smlDict['large']
 	if  calculatedSum != smlDict['sum']:
-		print "small + med. + large = %d but expected %d" % (calculatedSum, smlDict['sum'])
-		return False
+		return "small + med. + large = %d but expected %d" % (calculatedSum, smlDict['sum'])
 	# sum + pupae + imago must equal totalsum
 	calculatedTotalSum = spiDict['sum'] + spiDict['PUPAE'] + spiDict['IMAGO']
 	if  calculatedTotalSum != spiDict['Sum Total']:
-		print "sum + PUPAE + IMAGO = %d but expected %d" % (calculatedTotalSum, spiDict['Sum Total'])
-		return False
+		return "sum + PUPAE + IMAGO = %d but expected %d" % (calculatedTotalSum, spiDict['Sum Total'])
+	# If no errors, return None
+	return None
 
 if __name__ == '__main__':
-	checkDirectory(sys.argv[1])
+	errors = checkDirectory(sys.argv[1])
+	
