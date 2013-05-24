@@ -35,7 +35,7 @@ def getDestinationNames(filename):
 	filenames = []
 	with open(filename, 'rb') as files:
 		for line in files:
-			filenames.append(line)
+			filenames.append(line.rstrip())
 	return filenames
 
 # makes a single copy to the filename provided
@@ -132,7 +132,9 @@ def main():
 			return
 		links = []
 		for name in names:
-			links.append(MakeCopy(client, feed, name))
+			link = MakeCopy(client, feed, name)
+			links.append(link)
+			print str(link)
 		# now make a CSV out of the links
 		#image_url,data_entry_spreadsheet
 		with open(outputfile, 'wb') as csvfile:
