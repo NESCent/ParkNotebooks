@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-#    Copyright 2011 National Evolutionary Synthesis Center (NESCent).
+#    Copyright 2013 National Evolutionary Synthesis Center (NESCent).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
