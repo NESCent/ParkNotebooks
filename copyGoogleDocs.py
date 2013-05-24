@@ -82,16 +82,18 @@ def MakeCopies(client,feed,counter,increment,stop):
 		counter+=increment;
 	
 def main():
+	usage = 'python copyGoogleDocs.py --user [username] --pw [password] --template [empty spreadsheet name] --jpeglist [list of jpeg filenames] --output [csvfile]'
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], '', ['user=', 'pw=', 'jpeglist=', 'output='])
+		opts, args = getopt.getopt(sys.argv[1:], '', ['user=', 'pw=', 'template=', 'jpeglist=', 'output='])
 	except getopt.error, msg:
-		print 'python copyGoogleDocs.py --user [username] --pw [password] --jpeglist [list of jpeg filenames] --output [csvfile]'
+		print usage
 		sys.exit(2)
 
 	user = None
 	pw = None
 	jpeglist = None
 	outputfile = None
+	templateTitle = None
 	key = ''
 	# Process options
 	for option, arg in opts:
@@ -99,13 +101,15 @@ def main():
 	  		user = arg
 		elif option == '--pw':
 	  		pw = arg
+		elif option == '--template':
+			templateTitle = arg
 		elif option == '--jpeglist':
 			jpeglist = arg
 		elif option == '--output':
 			outputfile = arg
 
 	if user is None or pw is None or jpeglist is None or outputfile is None:
-		print 'python copyGoogleDocs.py --user [username] --pw [password] --jpeglist [list of jpeg filenames] --output [csvfile]'
+		print usage
 		sys.exit(2)
 
 	# Source is just a name identifying this application
@@ -118,7 +122,6 @@ def main():
 		print "Error logging in with these credentials"
 		return
 	
-	templateTitle='park_template'
 	feed = client.GetResources(uri='/feeds/default/private/full/-/spreadsheet?title='+templateTitle)
   
 	if not feed.entry:
