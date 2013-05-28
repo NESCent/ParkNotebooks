@@ -21,7 +21,7 @@ import gdata.docs.service
 import gdata.docs.client
 import os.path
 
-DOWNLOAD_DIR = '/Users/dan/parkNotebooks/'
+DOWNLOAD_DIR = '/Users/dan/parkNotebooks/exports/'
 
 def DownloadFeed(client,feed,dir):
 	if not feed.entry:
