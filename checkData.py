@@ -25,7 +25,9 @@ import sys
 import os
 import csv
 
-HEADERS = ['Date', 'Age', 'Obsr.', 'small', 'med.', 'large', 'sum', 'PUPAE', 'IMAGO', 'Sum Total']
+PILOT_HEADERS = ['Date', 'Age', 'Obsr.', 'small', 'med.', 'large', 'sum', 'PUPAE', 'IMAGO', 'Sum Total']
+STD_HEADERS = ['Date', 'Age', 'Obsr.', 'small', 'med.', 'large', 'sum', 'PUPAE', 'IMAGO', 'Sum Total', 'Dead Imagoes', 'Wt. in grams']
+MEAN_HEADERS = ['PER VIAL Age','PER VIAL larvae and pupae Mean','PER VIAL larvae and pupae %','PER VIAL imagoes Mean','PER VIAL imagoes %','PER VIAL total Mean','PER GRAM L & P Mean','PER GRAM Imag. Mean','PER GRAM Total Mean','n']
 
 def checkDirectory(directoryName):
 	filenames = os.listdir(directoryName)
@@ -52,13 +54,8 @@ def checkFile(filename):
 			print "  Line %d of %s failed check with error: %s" % (failure['line'], os.path.basename(filename), failure['error'])
 	return errors
 
-def checkRow(dictRow):
-	# first simply check the number of rows
-	if len(dictRow) != len(HEADERS):
-		return "wrong number of headers in CSV row"
-	# second, check to make sure the headers are the same
-	if sorted(HEADERS) != sorted(dictRow.keys()):
-		return "Headers in CSV row don't match the template"
+# rows with the 'standard' headers incl. small, med., large
+def checkStdRow(dictRow):
 	# third, check the data
 	# CSV library returns strings.  Convert to ints where we expect numbers
 	smlDict = {k: dictRow[k] for k in ['small','med.','large','sum']}
@@ -93,6 +90,70 @@ def checkRow(dictRow):
 		return "sum + PUPAE + IMAGO = %d but expected %d" % (calculatedTotalSum, spiDict['Sum Total'])
 	# If no errors, return None
 	return None
+
+# Rows with mean values - Per Vial and per gm
+def checkMeanRow(dictRow):
+	# per vial means
+	pvmDict = {k: dictRow[k] for k in ['PER VIAL larvae and pupae Mean','PER VIAL imagoes Mean','PER VIAL total Mean']}
+	missingValuesDict = {}
+	for k in pvmDict:
+		try:
+			val = float(pvmDict[k])
+		except ValueError:
+			val = 0.0
+			missingValuesDict[k] = True
+		pvmDict[k] = val
+
+	# per vial percentages
+	pvpDict = {k: dictRow[k] for k in ['PER VIAL larvae and pupae %','PER VIAL imagoes %']}
+	for k in pvpDict:
+		try:
+			val = float(pvpDict[k])
+		except ValueError:
+			val = 0.0
+			missingValuesDict[k] = True
+		pvpDict[k] = val
+
+	# per gram means
+	pgDict = {k: dictRow[k] for k in ['PER GRAM L & P Mean','PER GRAM Imag. Mean','PER GRAM Total Mean']}
+	for k in pgDict:
+		try:
+			val = float(pgDict[k])
+		except ValueError:
+			val = 0.0
+			missingValuesDict[k] = True
+		pgDict[k] = val
+
+	# in per vial, 'mean larvae and pupae' + 'mean imagoes' should equal 'total mean',
+	calculatedPVTotalMean = pvmDict['PER VIAL larvae and pupae Mean'] + pvmDict['PER VIAL imagoes Mean']
+	if abs(calculatedPVTotalMean - pvmDict['PER VIAL total Mean']) > 0.05:
+		return "PV L&P mean + imagoes Mean = %f but expected %f" % (calculatedPVTotalMean, pvmDict['PER VIAL total Mean'])
+	# sum of percentages  should be 100.0
+	calculatedPVTotalPercent = pvpDict['PER VIAL larvae and pupae %'] + pvpDict['PER VIAL imagoes %']
+	if abs(calculatedPVTotalPercent - 100.0) > 0.05:
+		return "PV L&P% + imagoes% = %f but expected %f" % (calculatedPVTotalPercent, 100.0)
+	# in per gram, 'L&P Mean' + 'Imag Mean' should equal 'Total Mean'
+	calculatedPGTotalMean = pgDict['PER GRAM L & P Mean'] + pgDict['PER GRAM Imag. Mean']
+	if abs(calculatedPGTotalMean - pgDict['PER GRAM Total Mean']) > 0.05:
+		return "PG L&P Mean + imag. Mean = %f but expected %f" % (calculatedPGTotalMean, pgDict['PER GRAM Total Mean'])
+	# If no errors, return None
+	return None
+
+
+def checkRow(dictRow):
+	# first simply check the number of rows
+	if len(dictRow) != len(PILOT_HEADERS) and len(dictRow) != len(STD_HEADERS) and len(dictRow) != len(MEAN_HEADERS):
+		return "wrong number of headers in CSV row"
+	# second, see if we have a standard or mean datasheet
+	if sorted(PILOT_HEADERS) == sorted(dictRow.keys()):
+		return checkStdRow(dictRow)
+	elif sorted(STD_HEADERS) == sorted(dictRow.keys()):
+		return checkStdRow(dictRow)
+   	elif sorted(MEAN_HEADERS) == sorted(dictRow.keys()):
+		return checkMeanRow(dictRow)
+	else:
+		return "Headers in CSV row don't match any template"
+
 
 if __name__ == '__main__':
 	errors = checkDirectory(sys.argv[1])
