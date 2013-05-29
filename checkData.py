@@ -46,10 +46,12 @@ def checkFile(filename):
 			result = checkRow(dictRow)
 			if result is not None:
 				errors.append({'line': csvdata.line_num, 'row': dictRow, 'error': result})
+		line_count = csvdata.line_num - 1
 	if len(errors) == 0:
-		print "%s: OK" % os.path.basename(filename)
+		warning = "WARNING: %d lines" % line_count if line_count < 2 else "%d lines" % line_count
+		print "%s: OK (%s)" % (os.path.basename(filename), warning)
    	else:
-		print "%s: FAILED" % os.path.basename(filename)
+		print "%s: FAILED (%d lines)" % (os.path.basename(filename), line_count)
 		for failure in errors:
 			print "  Line %d of %s failed check with error: %s" % (failure['line'], os.path.basename(filename), failure['error'])
 	return errors
