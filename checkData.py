@@ -33,28 +33,37 @@ def checkDirectory(directoryName):
 	filenames = os.listdir(directoryName)
 	directoryErrors = []
 	for filename in filenames:
-		errors = checkFile(os.path.join(directoryName, filename))
-		directoryErrors.append({'filename': filename, 'errors': errors})
+		result = checkFile(os.path.join(directoryName, filename))
+		directoryErrors.append(result)
 	return directoryErrors
 
 def checkFile(filename):
+	result = {}
+	result['filename'] = os.path.basename(filename)
 	errors = []
 	with open(filename, 'rb') as csvfile:
 		# can specify fieldnames here, but would rather confirm them directly
 		csvdata = csv.DictReader(csvfile)
 		for dictRow in csvdata:
-			result = checkRow(dictRow)
-			if result is not None:
-				errors.append({'line': csvdata.line_num, 'row': dictRow, 'error': result})
+			rowResult = checkRow(dictRow)
+			if rowResult is not None:
+				errors.append({'line': csvdata.line_num, 'row': dictRow, 'error': rowResult})
 		line_count = csvdata.line_num - 1
+	result['line_count'] = line_count
+	result['error_count'] = len(errors)
+	result['success_count'] = line_count - len(errors)
+	result['pass_rate'] = (line_count - len(errors)) * 100 / line_count if line_count > 0 else 0
 	if len(errors) == 0:
-		warning = "WARNING: %d lines" % line_count if line_count < 2 else "%d lines" % line_count
-		print "%s: OK (%s)" % (os.path.basename(filename), warning)
-   	else:
-		print "%s: FAILED (%d lines)" % (os.path.basename(filename), line_count)
-		for failure in errors:
-			print "  Line %d of %s failed check with error: %s" % (failure['line'], os.path.basename(filename), failure['error'])
-	return errors
+		if line_count < 2:
+			result['status'] = 'EMPTY'
+		else:
+			result['status'] = 'PERFECT'
+   	elif len(errors) < line_count:
+		result['status'] = 'PARTIAL'
+	elif len(errors) == line_count:
+		result['status'] = 'FAILURE'
+	result['errors'] = errors
+	return result
 
 # rows with the 'standard' headers incl. small, med., large
 def checkStdRow(dictRow):
@@ -158,5 +167,9 @@ def checkRow(dictRow):
 
 
 if __name__ == '__main__':
-	errors = checkDirectory(sys.argv[1])
-	
+	results = checkDirectory(sys.argv[1])
+	writer = csv.DictWriter(sys.stdout, results[0].keys())
+	writer.writeheader()
+	for result in results:
+		writer.writerow(result)
+
