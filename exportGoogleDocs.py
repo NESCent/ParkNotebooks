@@ -20,8 +20,9 @@ import getopt
 import gdata.docs.service
 import gdata.docs.client
 import os.path
+import copyGoogleDocs
 
-DOWNLOAD_DIR = '/Users/dan/parkNotebooks/exports/'
+DOWNLOAD_DIR = '/Users/dan/parkNotebooks/exports/batch1/'
 
 def DownloadFeed(client,feed,dir):
 	if not feed.entry:
@@ -38,23 +39,25 @@ def DownloadFeed(client,feed,dir):
 
 def main():
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], '', ['user=', 'pw='])
+		opts, args = getopt.getopt(sys.argv[1:], '', ['user=', 'pw=', 'sheets='])
 	except getopt.error, msg:
-		print 'python exportGoogleDocs.py --user [username] --pw [password] '
+		print 'python exportGoogleDocs.py --user [username] --pw [password] --sheets [spreadsheet names]'
 		sys.exit(2)
 
 	user = None
 	pw = None
-	key = '' # key is not used
+	sheets = None
 	# Process options
 	for option, arg in opts:
 		if option == '--user':
 	  		user = arg
 		elif option == '--pw':
 	  		pw = arg
+		elif option == '--sheets':
+	  		sheets = arg
 
-	if user is None or pw is None:
-		print 'python exportGoogleDocs.py --user [username] --pw [password] '
+	if user is None or pw is None or sheets is None:
+		print 'python exportGoogleDocs.py --user [username] --pw [password] --sheets [spreadsheet names]'
 		sys.exit(2)
 	# Source is the application name
 	client = gdata.docs.client.DocsClient(source='nescent-parkNotebooks-v1')
@@ -65,14 +68,15 @@ def main():
 	except gdata.service.BadAuthentication:
 		print "Error logging in with these credentials"
 		return
-	
-	titleSearchStr='ftbms0100201'
-	feed = client.GetResources(uri='/feeds/default/private/full/-/spreadsheet?title='+titleSearchStr)
 
-	if not feed.entry:
-		print 'No spreadsheet titled '+titleSearchStr+'\n'
-	else:
-		DownloadFeed(client,feed,DOWNLOAD_DIR)
-  
+	sheetNames = copyGoogleDocs.getDestinationNames(sheets)
+	for sheetName in sheetNames:
+		feed = client.GetResources(uri='/feeds/default/private/full/-/spreadsheet?title='+sheetName)
+
+		if not feed.entry:
+			print 'No spreadsheet titled '+titleSearchStr+'\n'
+		else:
+			DownloadFeed(client,feed,DOWNLOAD_DIR)
+
 if __name__ == '__main__':
 	main()
