@@ -24,6 +24,7 @@
 import sys
 import os
 import csv
+import getopt
 
 PILOT_HEADERS = ['Date', 'Age', 'Obsr.', 'small', 'med.', 'large', 'sum', 'PUPAE', 'IMAGO', 'Sum Total']
 STD_HEADERS = ['Date', 'Age', 'Obsr.', 'small', 'med.', 'large', 'sum', 'PUPAE', 'IMAGO', 'Sum Total', 'Dead Imagoes', 'Wt. in grams']
@@ -165,11 +166,47 @@ def checkRow(dictRow):
 	else:
 		return "Headers in CSV row don't match any template"
 
+def usage():
+	print 'python checkData.py [-v | --verbose] -d /path/to/directory'
 
 if __name__ == '__main__':
-	results = checkDirectory(sys.argv[1])
-	writer = csv.DictWriter(sys.stdout, results[0].keys())
-	writer.writeheader()
-	for result in results:
-		writer.writerow(result)
+	# LEaving off here, going to add getopt for the error output, but I'm giving up for the day
+	try:
+		opts, args = getopt.getopt(sys.argv[1:], 'vd:', ['verbose','directory='])
+	except getopt.GetoptError as err:
+		print str(err) # will print something like "option -a not recognized"
+		usage()
+		sys.exit(2)
 
+	verbose = False
+	directory = None
+	for o, a in opts:
+		if o == "-v":
+			verbose = True
+		elif o in ("-d", "--directory"):
+			directory = a
+		else:
+			assert False, "unhandled option"
+
+	if directory is None:
+		print "Error: Must specifiy a directory containing CSV files to check"
+		usage()
+		sys.exit(2)
+
+	results = checkDirectory(directory)
+	if verbose:
+		fieldNames = ['filename','status','line_count','success_count','error_count','pass_rate','line','error']
+	else:
+		fieldNames = ['filename','status','line_count','success_count','error_count','pass_rate']
+	writer = csv.DictWriter(sys.stdout, fieldNames)
+	writer.writeheader()
+	if verbose:
+		for result in results:
+			for error in result['errors']:
+				outRow = dict(result.items() + error.items())
+				outRow = { k: outRow[k] for k in fieldNames }
+				writer.writerow(outRow)
+   	else:
+		for result in results:
+			outRow = { k: result[k] for k in fieldNames }
+			writer.writerow(outRow)
