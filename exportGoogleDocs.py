@@ -22,7 +22,6 @@ import gdata.docs.client
 import os.path
 import copyGoogleDocs
 
-DOWNLOAD_DIR = '/Users/dan/parkNotebooks/exports/batch1/'
 
 def DownloadFeed(client,feed,dir):
 	if not feed.entry:
@@ -35,18 +34,21 @@ def DownloadFeed(client,feed,dir):
 			client.DownloadResource(entry, destinationFile, extra_params={'gid': 0, 'exportFormat': 'csv'})  # export the first sheet as csv	
 		else: 
 			print '%s already exists' % destinationFile
-	
+
+def usage():
+	print 'python exportGoogleDocs.py --user [username] --pw [password] --sheets [spreadsheet names] --download-dir [download dir]'
 
 def main():
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], '', ['user=', 'pw=', 'sheets='])
+		opts, args = getopt.getopt(sys.argv[1:], '', ['user=', 'pw=', 'sheets=', 'download-dir='])
 	except getopt.error, msg:
-		print 'python exportGoogleDocs.py --user [username] --pw [password] --sheets [spreadsheet names]'
+		usage()
 		sys.exit(2)
 
 	user = None
 	pw = None
 	sheets = None
+	download_dir = None
 	# Process options
 	for option, arg in opts:
 		if option == '--user':
@@ -55,9 +57,11 @@ def main():
 	  		pw = arg
 		elif option == '--sheets':
 	  		sheets = arg
+		elif option == '--download-dir':
+			download_dir = arg
 
-	if user is None or pw is None or sheets is None:
-		print 'python exportGoogleDocs.py --user [username] --pw [password] --sheets [spreadsheet names]'
+	if user is None or pw is None or sheets is None or download_dir is None:
+		usage()
 		sys.exit(2)
 	# Source is the application name
 	client = gdata.docs.client.DocsClient(source='nescent-parkNotebooks-v1')
@@ -74,9 +78,9 @@ def main():
 		feed = client.GetResources(uri='/feeds/default/private/full/-/spreadsheet?title='+sheetName)
 
 		if not feed.entry:
-			print 'No spreadsheet titled '+titleSearchStr+'\n'
+			print 'No spreadsheet titled '+sheetName+'\n'
 		else:
-			DownloadFeed(client,feed,DOWNLOAD_DIR)
+			DownloadFeed(client,feed,download_dir)
 
 if __name__ == '__main__':
 	main()
