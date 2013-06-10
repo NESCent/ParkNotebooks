@@ -143,7 +143,7 @@ def checkMeanRow(dictRow):
 	# sum of percentages  should be 100.0
 	calculatedPVTotalPercent = pvpDict['PER VIAL larvae and pupae %'] + pvpDict['PER VIAL imagoes %']
 	if abs(calculatedPVTotalPercent - 100.0) > 0.05:
-		return "PV L&P% + imagoes% = %f but expected %f" % (calculatedPVTotalPercent, 100.0)
+		return "PV L&P%% + imagoes%% = %f but expected %f" % (calculatedPVTotalPercent, 100.0)
 	# in per gram, 'L&P Mean' + 'Imag Mean' should equal 'Total Mean'
 	calculatedPGTotalMean = pgDict['PER GRAM L & P Mean'] + pgDict['PER GRAM Imag. Mean']
 	if abs(calculatedPGTotalMean - pgDict['PER GRAM Total Mean']) > 0.05:
