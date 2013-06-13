@@ -31,7 +31,7 @@ STD_HEADERS = ['Date', 'Age', 'Obsr.', 'small', 'med.', 'large', 'sum', 'PUPAE',
 MEAN_HEADERS = ['PER VIAL Age','PER VIAL larvae and pupae Mean','PER VIAL larvae and pupae %','PER VIAL imagoes Mean','PER VIAL imagoes %','PER VIAL total Mean','PER GRAM L & P Mean','PER GRAM Imag. Mean','PER GRAM Total Mean','n']
 
 def checkDirectory(directoryName):
-	filenames = os.listdir(directoryName)
+	filenames = [f for f in os.listdir(directoryName) if os.path.splitext(f)[1].lower() == '.csv']
 	directoryErrors = []
 	for filename in filenames:
 		result = checkFile(os.path.join(directoryName, filename))
