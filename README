@@ -1,5 +1,8 @@
 These are the scripts used in the Park Notebooks digitization project.
 
-* copyGoogleDocs.py: python script used to create new Google Spreadsheets from a template via the Python API for Google Docs. 
-* exportGoogleDocs.py: python script used to download the final spreadsheets to local csv files. Currently has hard-coded paths for download. Should take these as command-line args of from config file. 
-* checkData.pl: perl script (this would be python if I knew more about string parsing in python) used to validate the csv files based on columns that we know to be sums of other columns
+* copyGoogleDocs.py: python script used to create new Google Spreadsheets from a template via the Python API for Google Docs.
+* exportGoogleDocs.py: python script used to download the final spreadsheets to local csv files. Currently has hard-coded paths for download. Should take these as command-line args of from config file.
+* checkData.py: python script used to validate the csv files based on columns that we know to be sums of other columns
+* checkGoogleDocs.py: python script that uses exportGoogleDocs and checkData to validate the Google Spreadsheets
+* checkData.pl: original perl script used to validate the csv files, superseded by checkData.py
+

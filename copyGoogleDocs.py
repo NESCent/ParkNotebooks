@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-#    Copyright 2011 National Evolutionary Synthesis Center (NESCent). 
+#    Copyright 2011-2013 National Evolutionary Synthesis Center (NESCent).
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -19,13 +19,59 @@ import sys
 import getopt
 import gdata.docs.service
 import gdata.docs.client
+import gdata.acl.data
+import csv
+
+from os.path import *
+
+DOC_SUFFIX = '_1'
+IMAGE_BASE_URL = "http://www.nescent.org/Park_notebooks/full_scans/"
+
+# reads in a list of relative paths to jpeg files
+# ./experiment1/tbcms01001001.jpg
+# ...
+# ./experiment2/tbcms02006040.jpg
+def getDestinationNames(filename):
+	filenames = []
+	with open(filename, 'rb') as files:
+		for line in files:
+			filenames.append(line.rstrip())
+	return filenames
+
+# makes a single copy to the filename provided
+def MakeCopy(client, feed, dest):
+	sheetBasename = splitext(basename(dest))[0]
+	template = feed.entry[0]
+	newName = sheetBasename + DOC_SUFFIX
+	newfeed = client.GetResources(uri='/feeds/default/private/full/-/spreadsheet?title='+newName)
+	# check to make sure we don't have this one already
+	if not newfeed.entry:
+		print 'new doc:',newName
+		newdoc = client.CopyResource(template,newName)
+		# Make it editable to anyone with the link
+		scope = gdata.acl.data.AclScope(type='default')
+		role = gdata.acl.data.AclRole(value='writer')
+		acl_entry = gdata.docs.data.AclEntry(scope=scope, role=role)
+		# Need the feed entry
+		newfeed = client.GetResources(uri='/feeds/default/private/full/-/spreadsheet?title='+newName)
+		new_acl = client.Post(acl_entry, newfeed.entry[0].GetAclFeedLink().href)
+
+	else:
+		print 'already have:',newName
+	# Now we need a URL for this
+	# URL should look like https://docs.google.com/spreadsheet/ccc?key=0Ag-1ley90MKndE5IX2RjQk5ybmVobzVrMGt0RlJiWnc
+	newfeed = client.GetResources(uri='/feeds/default/private/full/-/spreadsheet?title='+newName)
+	spreadsheetURL = newfeed.entry[0].GetAlternateLink().href.replace('&usp=docslist_api','')
+	imageURL = IMAGE_BASE_URL + dest[2:]
+
+	return {'data_entry_spreadsheet': spreadsheetURL , 'image_url': imageURL}
 
 # makes copies based on the template (first doc in the feed)
 def MakeCopies(client,feed,counter,increment,stop):
 	nameStub = 'newtest'
 	template = feed.entry[0]
 	while counter<stop:
-		newName = nameStub+str(counter)+'_1'
+		newName = nameStub+str(counter)+DOC_SUFFIX
 		newfeed=client.GetResources(uri='/feeds/default/private/full/-/spreadsheet?title='+newName)
 		# check to make sure we don't have this one already
 		if not newfeed.entry:
@@ -36,14 +82,18 @@ def MakeCopies(client,feed,counter,increment,stop):
 		counter+=increment;
 	
 def main():
+	usage = 'python copyGoogleDocs.py --user [username] --pw [password] --template [empty spreadsheet name] --jpeglist [list of jpeg filenames] --output [csvfile]'
 	try:
-		opts, args = getopt.getopt(sys.argv[1:], '', ['user=', 'pw='])
+		opts, args = getopt.getopt(sys.argv[1:], '', ['user=', 'pw=', 'template=', 'jpeglist=', 'output='])
 	except getopt.error, msg:
-		print 'python copyGoogleDocs.py --user [username] --pw [password] '
+		print usage
 		sys.exit(2)
 
-	user = ''
-	pw = ''
+	user = None
+	pw = None
+	jpeglist = None
+	outputfile = None
+	templateTitle = None
 	key = ''
 	# Process options
 	for option, arg in opts:
@@ -51,7 +101,18 @@ def main():
 	  		user = arg
 		elif option == '--pw':
 	  		pw = arg
-	
+		elif option == '--template':
+			templateTitle = arg
+		elif option == '--jpeglist':
+			jpeglist = arg
+		elif option == '--output':
+			outputfile = arg
+
+	if user is None or pw is None or jpeglist is None or outputfile is None:
+		print usage
+		sys.exit(2)
+
+	# Source is just a name identifying this application
 	client = gdata.docs.client.DocsClient(source='nescent-parkNotebooks-v1')
 	client.ssl = True
 	client.http_client.debug = False
@@ -61,14 +122,28 @@ def main():
 		print "Error logging in with these credentials"
 		return
 	
-	templateTitle='park_template'
 	feed = client.GetResources(uri='/feeds/default/private/full/-/spreadsheet?title='+templateTitle)
   
 	if not feed.entry:
 		print 'No spreadsheet titled '+templateTitle+'\n'
 	else:
 		print 'copying '+templateTitle
-		MakeCopies(client,feed,10020690,10,10020700)
+		try:
+			names = getDestinationNames(jpeglist)
+		except:
+			print "Unable to read file names from %s" % jpeglist
+			return
+		links = []
+		for name in names:
+			link = MakeCopy(client, feed, name)
+			links.append(link)
+			print str(link)
+		# now make a CSV out of the links
+		#image_url,data_entry_spreadsheet
+		with open(outputfile, 'wb') as csvfile:
+			csvwriter = csv.DictWriter(csvfile, fieldnames=["image_url", "data_entry_spreadsheet"])
+			csvwriter.writeheader()
+			csvwriter.writerows(links)
 
 if __name__ == '__main__':
 	main()
