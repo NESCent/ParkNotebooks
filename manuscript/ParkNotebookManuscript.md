@@ -1,21 +1,24 @@
 # Digitizing data from Tribolium competition experiements of Thomas Park
 
-Michael Wade
-Dan Leehr
-Karen A. Cranston
+* Michael Wade
+* Dan Leehr
+* Karen A. Cranston
 
 Department of Biology, Indiana University,  Bloomington, IN 47405
+
 National Evolutionary Synthesis Center, Durham, NC, 27705
 
 abstract
 (140 words max)
 
-Mike - add some text introducing Park 
+Mike - add some text introducing Park
+
 The raw data from both the published and unpublished experiments has never been published, and exists only as handwritten data sheets in binders. We describe the digitization of data from two published Park manuscripts. We scanned binder pages, used Amazon Mechanical Turk and Google Spreadsheets to transcribe the scanned tables and developed methods for computational validation of the data entry process.
 
+# Background & Summary
 
-#Background & Summary
 Mike - short introduction to Park and to the experiments
+
 Mike - description of reuse potential
 
 (700 words maximum) An overview of the study design, the assay(s)
@@ -65,16 +68,16 @@ All data associated with this manuscript is deposited in the Dryad data resposit
 
 The data includes both the scanned images from the notebooks as well as the comma-separated (csv) files that contain digitized data from the images that follow standard data format. The two files *digguide.csv details the naming scheme of the image files. For the tabular data, it follows a very consistent structure with the following columns:
 
-Date: the date of the observation, in format MM-DD-YY, where month and day can be either one digit or two.
-Age: the age of the population in days
-Obsr.: the name of the person making the observation
-Larvae (multiple columns): the number of individuals in larval stages, separated by size. Sometimes three columns (small, medium, large) and sometimes two (small  med, large)
-Sum: the sum of the counts in the Larvae columns
-Pupae: the number of individuals in pupal stage
-Imago: the number of individuals in imago state
-Total: the sum of the Sum, Pupae and Imago columns
-Dead Imago: number of dead individuals in imago state
-wt. in grams: total weight of ?? the population?
+* Date: the date of the observation, in format MM-DD-YY, where month and day can be either one digit or two.
+* Age: the age of the population in days
+* Obsr.: the name of the person making the observation
+* Larvae (multiple columns): the number of individuals in larval stages, separated by size. Sometimes three columns (small, medium, large) and sometimes two (small  med, large)
+* Sum: the sum of the counts in the Larvae columns
+* Pupae: the number of individuals in pupal stage
+* Imago: the number of individuals in imago state
+* Total: the sum of the Sum, Pupae and Imago columns
+* Dead Imago: number of dead individuals in imago state
+* wt. in grams: total weight of ?? the population?
 
 #Technical Validation
 
@@ -82,7 +85,8 @@ To validate accuracy of the data entry, we did not do double-entry but instead r
 
 Q: Have the errors been corrected in the final spreadsheets?
 
-*Usage Notes
+#Usage Notes
+
 Mike W - anything for here?
 
 Brief instructions that may help other researchers reuse these dataset.
@@ -94,23 +98,23 @@ or comparing this with other datasets. If needed, authors are encouraged
 to upload code, programs, or data processing workflows as Supplementary
 Information, when they may help others analyse the data.
 
-*Acknowledgements
+#Acknowledgements
 This work was supported by the National Evolutionary Synthesis Center (NESCent), NSF #EF-0905606 
 
 Author contributions: MW provided the notebooks and expert knowledge of the data and experimental lab conditions. KC designed and implemented the pilot experiment. MA scanned the images and provided metadata matching images to notebook pages. DL implemented the full experiment, making improvements to validation protocols. 
 
 
-*Competing financial interests
+#Competing financial interests
 
 The author(s) declare no competing financial interests.
 
-*Figure Legends
+#Figure Legends
 
 Figure 1: Sample scanned notebook page. This page is representative of the standard tabular format submitted to Mechanical Turk for digitization. 
 
 Figure 2: Human Intelligent Task (HIT) template. The template used to generate individual HITs for submission to Amazon Mechanical Turk. 
 
-*Tables
+#Tables
 
 Tables supporting the Data Descriptor. These can provide summary information
 (sample numbers, demographics, etc.), but they should generally not
