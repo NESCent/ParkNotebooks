@@ -51,22 +51,22 @@ methods-focused journal article.
 ## Scanned images and data entry spreadsheets
 Mike A - details of scanning process
 
-We first scanned the pages using a {need information about scanner from Duke} and saved the as high-resolution JPG images. An initial pilot project scanned 66 pages, followed by a full list of 1093 pages. Using the set of 1093 images, which we sorted visually into images that contained consistent tabular data and those that did not. Of the 1025 tabular images, we sorted into full and partial pages depending on whether all lines on the binder sheet contained data. Figure 1 contains a sample full page of tabular data that represents the majority of the images. 
+We first scanned the pages using a {need information about scanner from Duke} and saved the as high-resolution JPG images. An initial pilot project scanned 66 pages, followed by a full list of 1093 pages. Using the set of 1093 images, which we sorted visually into images that contained consistent tabular data and those that did not. There were 1046 images containing tabular data in two distinct tabular formats. Of the 1046 tabular images, we sorted into full and partial pages depending on whether the majority of  lines on the binder sheet contained data. Figure 1 contains a sample full page of tabular data that represents the majority of the images. 
 
-The remaining 68 pages either contained a non-standard tabular format, or did not contain tabular data (for example, documentation). These pages were not considered for bulk transcription.
+The remaining 47 pages either contained a non-standard tabular format, or did not contain tabular data (for example, documentation). These pages were not considered for bulk transcription.
 
-At this point, the usable images were sorted into 6 directories or batches. Each batch contained images of pages in the same format and with roughly the same amount of data. For each image, we provided a publicly-accessible URL. We then created a template online Google spreadsheet that contained only a single row with the same columns as the tabular data on the scanned pages and set the permissions to "Anyone with the link can edit". For each image that included a table, we used the Google Docs API to copy the template and create a spreadsheet for data entry where the name of the spreadsheet matched the name of the image file. 
+At this point, the usable images were sorted into 6 directories or batches. Each batch contained images of pages from the same experiment, in the same format and with roughly the same amount of data. For each image, we provided a publicly-accessible URL. We then created a template online Google spreadsheet that contained only a single row with the same columns as the tabular data on the scanned pages and set the permissions to "Anyone with the link can edit". For each image that included a table, we used the Google Docs API to copy the template and create a spreadsheet for data entry, saving its URL. We recorded the mapping of image URLs to spreadsheet URLs in a CSV file.
 
 ## Digitization with Mechanical Turk
-Mechanical Turk is an online marketplace that pairs workers with online tasks (Human Intelligent Tasks, or HITs). We create a HIT template that included the image, a link to the associated online spreadsheet and instructions for doing the data entry. See Figure 2 for the HIT template. By including the image location and spreadsheet location as variables on the HIT template, we could use the AMT bulk creation process to create a separate HIT for each combination of image and associated spreadsheet. We then published the HITs, asking workers to enter the numbers from the image into the cells of the spreadsheet. For full pages, we allowed 60 minutes of time and paid $1.00 USD. For half pages, we allowed 45 minutes and paid $0.60 USD. For each submitted batch, all HITs were taken and completed within 1 hour of submission. The average time to complete a full page was 35 minutes and for a  half page was 23 minutes.  
+Mechanical Turk is an online marketplace that pairs workers with online tasks (Human Intelligent Tasks, or HITs). We created a HIT template that included the image, a link to the associated online spreadsheet and instructions for doing the data entry. See Figure 2 for the HIT template. By including the image location and spreadsheet location as variables on the HIT template, we could use the AMT bulk creation process to create a separate HIT for each combination of image and associated spreadsheet, based on the mapping CSV file. We then published the HITs, asking workers to enter the numbers from the image into the cells of the spreadsheet. For full pages, we allowed 60 minutes of time and paid $1.00 USD. For half pages, we allowed 45 minutes and paid $0.60 USD. For each submitted batch, all HITs were taken and completed within 1 hour of submission. The average time to complete a full page was 23 minutes and for a half page was 12 minutes.  
 
 We did an initial pilot project to test the workflow, then a full set of two experiments with slight modifications to the initial protocol. 
 
 #Data Records
 
-All data associated with this manuscript is deposited in the Dryad data respository {link to dryad data package}. All scripts used for data processing, as well as additional documentation, is on GitHub at http://github.com/nescent/parknotebooks. All code is licensed under the GPL v. 3 license. All data is release with the CC0 waiver. 
+All data associated with this manuscript is deposited in the Dryad data respository {link to dryad data package}. All scripts used for data processing, as well as additional documentation, is on GitHub at http://github.com/nescent/parknotebooks. All code is licensed under the GPL v. 3 license. All data is released with the CC0 waiver. 
 
-The data includes both the scanned images from the notebooks as well as the comma-separated (csv) files that contain digitized data from the images that follow standard data format. The two files *digguide.csv details the naming scheme of the image files. For the tabular data, it follows a very consistent structure with the following columns:
+The data includes both the scanned images from the notebooks as well as the comma-separated (csv) files that contain digitized data from the images that follow standard data format. The two files *digguide.csv details the naming scheme of the image files. The majority (1025) of the pages follow a very consistent structure with the following columns:
 
 * Date: the date of the observation, in format MM-DD-YY, where month and day can be either one digit or two.
 * Age: the age of the population in days
@@ -79,9 +79,24 @@ The data includes both the scanned images from the notebooks as well as the comm
 * Dead Imago: number of dead individuals in imago state
 * wt. in grams: total weight of ?? the population?
 
+A smaller set of pages (21) follow a different structure, recording the mean values per vial and per gram:
+
+__Need detail on what these columns are__
+
+* PER VIAL Age
+* PER VIAL larvae and pupae Mean
+* PER VIAL larvae and pupae %
+* PER VIAL imagoes Mean
+* PER VIAL imagoes %	
+* PER VIAL total Mean
+* PER GRAM L & P Mean
+* PER GRAM Imag. Mean
+* PER GRAM Total Mean
+* n
+
 #Technical Validation
 
-To validate accuracy of the data entry, we did not do double-entry but instead relied on features of the data that allowed for internal verification. For each row, there were two columns ('Sum' and 'Total') that were sums of other columns in the row. We wrote a python script that checked that the entered sum was equal to the actual sum of the columns. This script also checked that the files contains the expected number of columns and rows. In most cases where the sum test failed, the error was in the original data entry on the binder page, not in the transcribed data. 
+To validate accuracy of the data entry, we did not do double-entry but instead relied on features of the data that allowed for internal verification. In both tabular formats, there were columns that were sums of other columns, providing an intrinsic check. In the dated observation data, the 'Sum' and 'Total' columns in each row were sums of other columns. In the mean value data, the 'PER VIAL total Mean' and 'PER GRAM Total Mean' columns in each row were sums of other columns. We wrote a python script that checked that the entered sum was equal to the actual sum of the columns. This script also checked that the files contains the expected number of columns and reported the number of rows, both passing the sum test and failing. In most cases where the sum test failed, the error was in the original data entry on the binder page, not in the transcribed data. The script generated summary reports regarding each page in CSV format as well as detailed per-row errors.
 
 Q: Have the errors been corrected in the final spreadsheets?
 
