@@ -1,3 +1,5 @@
+# given csv file with filenames and metadata
+# concatenate files from the same exeperiment
 import os
 import re
 import csv

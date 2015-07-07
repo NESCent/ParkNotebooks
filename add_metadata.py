@@ -76,10 +76,11 @@ def parseSterile(codestr):
         return "nonsterile"
 
 # Some of the code contain extra two-letter identifiers
-# (e.g. 'ee' or 'pp'). We don't know what these mean
+# (e.g. 'ee' or 'pp') or the code -h-. We don't know what these mean
 def checkUndefinedCode(codestr):
     pattern = re.compile('-[a-z][a-z]-')
-    if (re.search(pattern,codestr)):
+    pattern2 = re.compile('-h-')
+    if (re.search(pattern,codestr) or re.search(pattern2,codestr)):
         return True
     else:
         return False
